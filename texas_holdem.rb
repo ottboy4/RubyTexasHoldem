@@ -1,4 +1,4 @@
 class TexasHoldem
   # a comment
-  #Caleb's comment sucks
+  # Caleb's comment sucks
 end
