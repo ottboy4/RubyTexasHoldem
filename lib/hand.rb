@@ -1,10 +1,26 @@
 class Hand
+  
+    attr_accessor :folded
+  
   def initialize(cards)
     @cards = cards
+    @folded = false 
+  end
+  
+  def to_s
+    @cards.to_s
+  end
+  
+  def add_cards(cards)
+    @cards.concat(cards)
   end
 
   def score_cards
     [straight_score, find_matches, flush_score].max
+  end
+  
+  def fold
+    @folded = true
   end
 
   def find_matches

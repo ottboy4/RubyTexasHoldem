@@ -14,5 +14,9 @@ class Card
     @suit = suit
     @number = number
   end
+  
+  def to_s
+    "#{@number}#{@suit}"
+  end
 
 end
