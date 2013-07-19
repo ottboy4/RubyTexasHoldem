@@ -30,9 +30,10 @@ class TexasHoldem
   end
   
   def deal_first_table_cards
+    cards = @deck.deal_cards(3)
     for i in 1..@number_of_players
       unless @player_hands[i-1].folded
-        @player_hands[i-1].add_cards(@deck.deal_cards(3))
+        @player_hands[i-1].add_cards()
       end
     end
   end
