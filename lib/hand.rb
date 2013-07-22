@@ -1,14 +1,16 @@
 class Hand
   
     attr_accessor :folded
+    attr_accessor :hand_type
   
   def initialize(cards)
     @cards = cards
     @folded = false 
+    @hand_type = ""
   end
   
   def to_s
-    @cards.to_s
+    "#{@cards.to_s}#{@hand_type}"
   end
   
   def add_cards(cards)

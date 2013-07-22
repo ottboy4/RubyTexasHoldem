@@ -3,6 +3,7 @@ require_relative 'card.rb'
 class Deck
   def initialize
     fill_deck
+    @cards.shuffle!
   end
 
   def fill_deck

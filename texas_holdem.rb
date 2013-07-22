@@ -10,7 +10,7 @@ class TexasHoldem
   
   def choose_to_fold?
      value = rand(100)
-     if value < 10
+     if value < 15
        return true
      else
        return false
@@ -25,7 +25,9 @@ class TexasHoldem
   
   def calculate_folded_players
     for i in 1..@number_of_players
-      @player_hands[i-1].folded = choose_to_fold?
+      unless @player_hands[i-1].folded
+       @player_hands[i-1].folded = choose_to_fold?
+      end
     end
   end
   
@@ -33,15 +35,16 @@ class TexasHoldem
     cards = @deck.deal_cards(3)
     for i in 1..@number_of_players
       unless @player_hands[i-1].folded
-        @player_hands[i-1].add_cards()
+        @player_hands[i-1].add_cards(cards)
       end
     end
   end
   
   def deal_next_table_card
+    cards = @deck.deal_cards(1)
     for i in 1..@number_of_players
       unless @player_hands[i-1].folded
-        @player_hands[i-1].add_cards(@deck.deal_cards(1))
+        @player_hands[i-1].add_cards(cards)
       end
     end
   end
