@@ -12,7 +12,11 @@ class Card
 
   def initialize(suit, number)
     @suit = suit
+    if number == 1
+      @number = 14
+    else
     @number = number
+    end
   end
   
   def to_s
@@ -22,11 +26,15 @@ class Card
       "Q#{@suit}"
     elsif @number == 13
       "K#{@suit}"
-    elsif @number == 1
+    elsif @number == 14
       "A#{@suit}"
     else 
       "#{@number}#{@suit}"
     end
+  end
+  
+  def <=> other
+    return 0-(self.number <=> other.number)
   end
 
 end
