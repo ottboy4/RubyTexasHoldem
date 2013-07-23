@@ -51,7 +51,25 @@ class TexasHoldem
   
   def print_hands
     for i in 1..@number_of_players
-      puts @player_hands[i-1].to_s
+      if i-1 == @winner_index
+        puts "#{@player_hands[@winner_index].to_s} (Winner)"
+      else 
+        puts @player_hands[i-1].to_s
+      end
+    end
+  end
+  
+  def calculate_winner
+    winner_score = 0
+    @winner_index = 0
+    for i in 1..@number_of_players
+      unless @player_hands[i-1].count < 7
+        temp = @player_hands[i-1].score_cards.calc_value
+        if temp > winner_score
+          winner_score = temp
+          @winner_index = i-1
+        end
+      end
     end
   end
   
@@ -63,6 +81,7 @@ class TexasHoldem
     deal_next_table_card
     calculate_folded_players
     deal_next_table_card
+    calculate_winner
     print_hands
   end
 end

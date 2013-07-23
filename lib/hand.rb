@@ -46,7 +46,7 @@ class Hand
   end
 
   def to_s
-    "#{@cards.to_s}#{@hand_type}"
+    "#{@cards.to_s} #{@hand_type}"
   end
 
   def add_cards(cards)
@@ -140,6 +140,7 @@ class Hand
     end
     get_card_sets
     if(card_exists > 0)
+      @hand_type = "Royal Flush"
       @hand_rank.first_compare = Values::ROYAL_FLUSH
     return @hand_rank
     else
@@ -210,6 +211,7 @@ class Hand
       other_cards = Array.new(@cards)
       other_cards.keep_if {|card| card.number != @card_sets.keys[0]}
     @hand_rank.third_compare = other_cards[0].number
+    @hand_type = "Four of a kind"
     return @hand_rank
     end
   end
@@ -222,6 +224,7 @@ class Hand
           @hand_rank.first_compare = Values::FULL_HOUSE
         @hand_rank.second_compare = @card_sets.keys[0]
         @hand_rank.third_compare = @card_sets.keys[1]
+        @hand_type = "Full House"
         return @hand_rank
         else
           return nil
@@ -268,6 +271,7 @@ class Hand
     @hand_rank.fourth_compare = suit_cards[2].number
     @hand_rank.fifth_compare = suit_cards[3].number
     @hand_rank.sixth_compare = suit_cards[4].number
+    @hand_type = "Flush"
     return @hand_rank
     end
     return nil
@@ -307,6 +311,7 @@ class Hand
       other_cards.keep_if {|card| card.number != @card_sets.keys[0]}
     @hand_rank.third_compare = other_cards[0].number
     @hand_rank.fourth_compare = other_cards[1].number
+    @hand_type = "Three of a kind"
     return @hand_rank
     else
       return nil
@@ -321,10 +326,15 @@ class Hand
       other_cards = Array.new(@cards)
       other_cards.keep_if {|card| card.number != @card_sets.keys[0] && card.number != @card_sets.keys[1]}
     @hand_rank.fourth_compare = other_cards[0].number
+    @hand_type = "Two pair"
     return @hand_rank
     else
       return nil
     end
+  end
+  
+  def count
+    @cards.count
   end
 
   def pair
@@ -334,6 +344,7 @@ class Hand
     @hand_rank.third_compare = @card_sets.keys[1]
     @hand_rank.fourth_compare = @card_sets.keys[2]
     @hand_rank.fifth_compare = @card_sets.keys[3]
+    @hand_type = "Pair"
     return @hand_rank
     end
   end
@@ -344,6 +355,7 @@ class Hand
     @hand_rank.third_compare = @cards[2].number
     @hand_rank.fourth_compare = @cards[3].number
     @hand_rank.fifth_compare = @cards[4].number
+    @hand_type = "High card"
     return @hand_rank
   end
 end
