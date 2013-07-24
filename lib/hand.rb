@@ -156,6 +156,7 @@ class Hand
       if cards_of_suit.length >= 5 # only if there are at least 5 cards with the same suit
         high_card = straight_high_card_value(cards_of_suit)
         if high_card != nil
+          @hand_type = "Straight Flush"
           @hand_rank.first_compare = Values::STRAIGHT_FLUSH
           @hand_rank.second_compare = high_card
           return @hand_rank
@@ -251,6 +252,7 @@ class Hand
   def straight
     high_card = straight_high_card_value(@cards)
     if high_card != nil
+      @hand_type = "Straight"
       @hand_rank.first_compare = Values::STRAIGHT
       @hand_rank.second_compare = high_card
       return @hand_rank
