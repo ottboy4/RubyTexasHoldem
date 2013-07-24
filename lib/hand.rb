@@ -149,59 +149,33 @@ class Hand
   end
 
   def straight_flush
-    #TODO
-    # card_exists = 0
-    # @cards.each do |card|
-      # if(card.suit == Suit::DIAMOND)
-      # card_exists = card_exists += 1
-      # elsif(card.suit == Suit::HEART)
-      # card_exists = card_exists += 10
-      # elsif(card.suit == Suit::CLUB)
-      # card_exists = card_exists += 100
-      # elsif(card.suit == Suit::SPADE)
-      # card_exists = card_exists += 1000
-      # end
-    # end
-    # spade_flush = card_exists/1000 > 4
-    # club_flush = (card_exists%1000)/100 > 4
-    # heart_flush = (card_exists%100)/10 > 4
-    # diamond_flush = card_exists%10 > 4
-    # if(spade_flush || club_flush || heart_flush || diamond_flush)
-      # @hand_rank.first_compare = Values::FLUSH
-      # suit_cards = Array.new(@cards)
-      # if(spade_flush)
-        # suit_cards.keep_if {|card| card.suit == Suit::SPADE }
-      # elsif(club_flush)
-        # suit_cards.keep_if {|card| card.suit == Suit::CLUB }
-      # elsif(heart_flush)
-        # suit_cards.keep_if {|card| card.suit == Suit::HEART }
-      # elsif(diamond_flush)
-        # suit_cards.keep_if {|card| card.suit == Suit::DIAMOND }
-      # end
-    # suit_cards.permutation do |diff_cards|
-      # found = Array.new
-      # diff_cards.each do |card|
-        # if card.number - value == 1
-        # found.push(card)
-        # else
-          # found = Array.new
-        # end
-        # value = card.number
-      # end
-      # if found.length >= 5
-        # score = 0
-        # if flush(found)
-          # score = Values::STRAIGHT_FLUSH
-        # else
-          # score = Values::STRAIGHT
-        # end
-        # found = found.sort { |x,y| x.number <=> y.number }
-      # score *= found[4].number # multiply by the largest found
-      # return score
-      # else
-        # return nil
-      # end
-    # end
+    # TODO fix this method
+    unique.push(Card.new('e', 1)) if !unique.select {|x| x.number == 14 }.empty? # if selecting all cards with 14 is not empty, add 1 as well to check for straight
+    unique.sort!
+    valid_so_far = 1
+    for i in 1..unique.length
+      if unique[i-1].number - unique[i].number == 1
+        valid_so_far += 1
+      else
+        valid_so_far = 1
+      end
+
+      if valid_so_far == 5 and flush?(unique.values_at(i-4, i))
+        @hand_rank.first_compare = Values::STRAIGHT
+        @hand_rank.second_compare = unique[i-4].number
+        return @hand_rank
+      end
+    end
+    return nil
+  end
+
+  # checks to see if all the passed in cards are of the same suit
+  def flush?(cards)
+    suit = cards[0].suit
+    cards.each do |card|
+      return false if card.suit != suit
+    end
+    true
   end
 
   def four_of_a_kind
@@ -278,29 +252,24 @@ class Hand
   end
 
   def straight
-    #TODO
-    # @cards.permutation do |diff_cards|
-      # found = Array.new
-      # diff_cards.each do |card|
-        # if card.number - value == 1
-        # found.push(card)
-        # else
-          # found = Array.new
-        # end
-        # value = card.number
-      # end
-      # if found.length >= 5
-        # score = 0
-        # if flush(found)
-          # score = Values::STRAIGHT_FLUSH
-        # else
-          # score = Values::STRAIGHT
-        # end
-        # found = found.sort { |x,y| x.number <=> y.number }
-      # score *= found[4].number # multiply by the largest found
-      # return score
-      # end
-    # end
+    unique = @cards.uniq { |x| x.number }
+    unique.push(Card.new('e', 1)) if !unique.select {|x| x.number == 14 }.empty? # if selecting all cards with 14 is not empty, add 1 as well to check for straight
+    unique.sort!
+    valid_so_far = 1
+    for i in 1..unique.length
+        if unique[i-1].number - unique[i].number == 1
+          valid_so_far += 1
+        else
+          valid_so_far = 1
+        end
+
+        if valid_so_far == 5
+          @hand_rank.first_compare = Values::STRAIGHT
+          @hand_rank.second_compare = unique[i-4].number
+          return @hand_rank
+        end
+    end
+    return nil
   end
 
   def three_of_a_kind
