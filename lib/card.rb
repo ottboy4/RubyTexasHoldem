@@ -12,8 +12,10 @@ class Card
 
   def initialize(suit, number)
     @suit = suit
-    if number == 1
+    if number == 1 # high ace
       @number = 14
+    elsif number == 0 # low aces - should be only for internal code
+      @number = 1
     else
     @number = number
     end

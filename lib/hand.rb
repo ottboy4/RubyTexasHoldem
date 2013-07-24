@@ -42,7 +42,7 @@ class Hand
     @card_sets = nil
     get_card_sets
     @folded = false
-    @hand_type = ""
+    @hand_type = ''
   end
 
   def to_s
@@ -64,8 +64,8 @@ class Hand
     temp_cards = Array.new(@cards)
     @cards.each do |card|
       cards_of_num = temp_cards.select { |c| c.number == card.number }
-      if(cards_of_num.length > 0)
-      @card_sets.store(card.number, cards_of_num)
+      if (cards_of_num.length > 0)
+        @card_sets.store(card.number, cards_of_num)
       end
       temp_cards.delete_if { |c| c.number == card.number }
     end
@@ -149,24 +149,21 @@ class Hand
   end
 
   def straight_flush
-    # TODO fix this method
-    unique.push(Card.new('e', 1)) if !unique.select {|x| x.number == 14 }.empty? # if selecting all cards with 14 is not empty, add 1 as well to check for straight
-    unique.sort!
-    valid_so_far = 1
-    for i in 1..unique.length
-      if unique[i-1].number - unique[i].number == 1
-        valid_so_far += 1
-      else
-        valid_so_far = 1
+    my_cards = Array.new(@cards)
+    my_cards.select {|card| card.number == 14 }.each {|card| my_cards.push(Card.new(card.suit, 0)) } # add all aces as 1's also keeping the suit information
+    my_cards.each do |card|
+      cards_of_suit = my_cards.select { |c| c.suit == card.suit }
+      if cards_of_suit.length >= 5 # only if there are at least 5 cards with the same suit
+        high_card = straight_high_card_value(cards_of_suit)
+        if high_card != nil
+          @hand_rank.first_compare = Values::STRAIGHT_FLUSH
+          @hand_rank.second_compare = high_card
+          return @hand_rank
+        end
       end
-
-      if valid_so_far == 5 and flush?(unique.values_at(i-4, i))
-        @hand_rank.first_compare = Values::STRAIGHT
-        @hand_rank.second_compare = unique[i-4].number
-        return @hand_rank
-      end
+      my_cards.delete_if { |c| c.suit == card.suit }
     end
-    return nil
+    nil # no straight flush found, return nil
   end
 
   # checks to see if all the passed in cards are of the same suit
@@ -252,24 +249,32 @@ class Hand
   end
 
   def straight
-    unique = @cards.uniq { |x| x.number }
-    unique.push(Card.new('e', 1)) if !unique.select {|x| x.number == 14 }.empty? # if selecting all cards with 14 is not empty, add 1 as well to check for straight
+    high_card = straight_high_card_value(@cards)
+    if high_card != nil
+      @hand_rank.first_compare = Values::STRAIGHT
+      @hand_rank.second_compare = high_card
+      return @hand_rank
+    end
+    nil
+  end
+
+  def straight_high_card_value(cards)
+    unique = cards.uniq { |x| x.number }
+    unique.push(Card.new('e', 0)) if !unique.select {|x| x.number == 14 }.empty? # if selecting all cards with 14 is not empty, add 1 as well to check for straight
     unique.sort!
     valid_so_far = 1
-    for i in 1..unique.length
-        if unique[i-1].number - unique[i].number == 1
-          valid_so_far += 1
-        else
-          valid_so_far = 1
-        end
+    (1..unique.length - 1).each do |i|
+      if unique[i-1].number - unique[i].number == 1
+        valid_so_far += 1
+      else
+        valid_so_far = 1
+      end
 
-        if valid_so_far == 5
-          @hand_rank.first_compare = Values::STRAIGHT
-          @hand_rank.second_compare = unique[i-4].number
-          return @hand_rank
-        end
+      if valid_so_far == 5
+        return unique[i-4].number # return highest card value
+      end
     end
-    return nil
+    nil # no straight found, return null (nil)
   end
 
   def three_of_a_kind
