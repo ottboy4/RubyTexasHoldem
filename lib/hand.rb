@@ -1,6 +1,7 @@
 class HandRank
 
   attr_accessor :first_compare, :second_compare, :third_compare, :fourth_compare, :fifth_compare, :sixth_compare, :value
+
   def initialize
     @first_compare = 0
     @second_compare = 0
@@ -35,6 +36,7 @@ class Hand
 
   attr_accessor :folded
   attr_accessor :hand_type
+
   def initialize(cards)
     @hand_rank = HandRank.new
     @cards = cards
@@ -74,42 +76,24 @@ class Hand
 
   def score_cards
     best = royal_flush
-    if(best == nil)
-      best = straight_flush
-      if(best == nil)
-        best = four_of_a_kind
-        if (best == nil)
-          best = full_house
-          if(best == nil)
-            best = flush
-            if(best == nil)
-              best = straight
-              if(best == nil)
-                best = three_of_a_kind
-                if(best == nil)
-                  best = two_pair
-                  if(best == nil)
-                    best = pair
-                    if(best == nil)
-                      best = high_card
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-    end
+    best = straight_flush if (best == nil)
+    best = four_of_a_kind if (best == nil)
+    best = full_house if (best == nil)
+    best = flush if (best == nil)
+    best = straight if (best == nil)
+    best = three_of_a_kind if (best == nil)
+    best = two_pair if (best == nil)
+    best = pair if (best == nil)
+    best = high_card if (best == nil)
     best
   end
 
   def royal_flush
     @card_sets = Hash.new
     temp_cards = Array.new(@cards)
-    temp_cards.keep_if {|card| card.number > 9}
+    temp_cards.keep_if { |card| card.number > 9 }
     @cards.each do |card|
-      if(card.number > 9)
+      if (card.number > 9)
         cards_of_num = temp_cards.select { |c| c.number == card.number }
         @card_sets.store(card.number, cards_of_num)
         temp_cards.delete_if { |c| c.number == card.number }
@@ -117,7 +101,7 @@ class Hand
     end
     @card_sets = Hash[@card_sets.sort_by { |_, v| 0-v.length }]
     for i in 0..4
-      if(@card_sets.keys[i] != 14-i)
+      if (@card_sets.keys[i] != 14-i)
         get_card_sets
         return nil
       end
@@ -126,23 +110,25 @@ class Hand
     for i in 0..4
       card_exists = 0
       @card_sets[14-i].each do |card|
-        if(card.suit == Suit::DIAMOND)
-        card_exists = card_exists | 8
-        elsif(card.suit == Suit::HEART)
-        card_exists = card_exists | 4
-        elsif(card.suit == Suit::CLUB)
-        card_exists = card_exists | 2
-        elsif(card.suit == Suit::SPADE)
-        card_exists = card_exists | 1
+        print "Card "
+        puts card
+        if (card.suit == Suit::DIAMOND)
+          card_exists = card_exists | 8
+        elsif (card.suit == Suit::HEART)
+          card_exists = card_exists | 4
+        elsif (card.suit == Suit::CLUB)
+          card_exists = card_exists | 2
+        elsif (card.suit == Suit::SPADE)
+          card_exists = card_exists | 1
         end
       end
       exists = exists & card_exists
     end
     get_card_sets
-    if(card_exists > 0)
+    if (exists > 0)
       @hand_type = "Royal Flush"
       @hand_rank.first_compare = Values::ROYAL_FLUSH
-    return @hand_rank
+      return @hand_rank
     else
       return nil
     end
@@ -150,7 +136,7 @@ class Hand
 
   def straight_flush
     my_cards = Array.new(@cards)
-    my_cards.select {|card| card.number == 14 }.each {|card| my_cards.push(Card.new(card.suit, 0)) } # add all aces as 1's also keeping the suit information
+    my_cards.select { |card| card.number == 14 }.each { |card| my_cards.push(Card.new(card.suit, 0)) } # add all aces as 1's also keeping the suit information
     my_cards.each do |card|
       cards_of_suit = my_cards.select { |c| c.suit == card.suit }
       if cards_of_suit.length >= 5 # only if there are at least 5 cards with the same suit
@@ -177,32 +163,32 @@ class Hand
   end
 
   def four_of_a_kind
-    if(@card_sets.values[0].length == 4)
+    if (@card_sets.values[0].length == 4)
       @hand_rank.first_compare = Values::FOUR_OF_A_KIND
       @hand_rank.second_compare = @card_sets.keys[0]
       other_cards = Array.new(@cards)
-      other_cards.keep_if {|card| card.number != @card_sets.keys[0]}
-    @hand_rank.third_compare = other_cards[0].number
-    @hand_type = "Four of a kind"
-    return @hand_rank
+      other_cards.keep_if { |card| card.number != @card_sets.keys[0] }
+      @hand_rank.third_compare = other_cards[0].number
+      @hand_type = "Four of a kind"
+      return @hand_rank
     end
   end
 
   def full_house
     has_three = false
     @card_sets.each do |card_value, cards|
-      if(has_three)
+      if (has_three)
         if (cards.length > 1)
           @hand_rank.first_compare = Values::FULL_HOUSE
-        @hand_rank.second_compare = @card_sets.keys[0]
-        @hand_rank.third_compare = @card_sets.keys[1]
-        @hand_type = "Full House"
-        return @hand_rank
+          @hand_rank.second_compare = @card_sets.keys[0]
+          @hand_rank.third_compare = @card_sets.keys[1]
+          @hand_type = "Full House"
+          return @hand_rank
         else
           return nil
         end
       elsif cards.length == 3
-      has_three = true
+        has_three = true
       else
         return nil
       end
@@ -212,39 +198,39 @@ class Hand
   def flush
     card_exists = 0
     @cards.each do |card|
-      if(card.suit == Suit::DIAMOND)
-      card_exists = card_exists += 1
-      elsif(card.suit == Suit::HEART)
-      card_exists = card_exists += 10
-      elsif(card.suit == Suit::CLUB)
-      card_exists = card_exists += 100
-      elsif(card.suit == Suit::SPADE)
-      card_exists = card_exists += 1000
+      if (card.suit == Suit::DIAMOND)
+        card_exists = card_exists += 1
+      elsif (card.suit == Suit::HEART)
+        card_exists = card_exists += 10
+      elsif (card.suit == Suit::CLUB)
+        card_exists = card_exists += 100
+      elsif (card.suit == Suit::SPADE)
+        card_exists = card_exists += 1000
       end
     end
     spade_flush = card_exists/1000 > 4
     club_flush = (card_exists%1000)/100 > 4
     heart_flush = (card_exists%100)/10 > 4
     diamond_flush = card_exists%10 > 4
-    if(spade_flush || club_flush || heart_flush || diamond_flush)
+    if (spade_flush || club_flush || heart_flush || diamond_flush)
       @hand_rank.first_compare = Values::FLUSH
       suit_cards = Array.new(@cards)
-      if(spade_flush)
-        suit_cards.keep_if {|card| card.suit == Suit::SPADE }
-      elsif(club_flush)
-        suit_cards.keep_if {|card| card.suit == Suit::CLUB }
-      elsif(heart_flush)
-        suit_cards.keep_if {|card| card.suit == Suit::HEART }
-      elsif(diamond_flush)
-        suit_cards.keep_if {|card| card.suit == Suit::DIAMOND }
+      if (spade_flush)
+        suit_cards.keep_if { |card| card.suit == Suit::SPADE }
+      elsif (club_flush)
+        suit_cards.keep_if { |card| card.suit == Suit::CLUB }
+      elsif (heart_flush)
+        suit_cards.keep_if { |card| card.suit == Suit::HEART }
+      elsif (diamond_flush)
+        suit_cards.keep_if { |card| card.suit == Suit::DIAMOND }
       end
-    @hand_rank.second_compare = suit_cards[0].number
-    @hand_rank.third_compare = suit_cards[1].number
-    @hand_rank.fourth_compare = suit_cards[2].number
-    @hand_rank.fifth_compare = suit_cards[3].number
-    @hand_rank.sixth_compare = suit_cards[4].number
-    @hand_type = "Flush"
-    return @hand_rank
+      @hand_rank.second_compare = suit_cards[0].number
+      @hand_rank.third_compare = suit_cards[1].number
+      @hand_rank.fourth_compare = suit_cards[2].number
+      @hand_rank.fifth_compare = suit_cards[3].number
+      @hand_rank.sixth_compare = suit_cards[4].number
+      @hand_type = "Flush"
+      return @hand_rank
     end
     return nil
   end
@@ -262,7 +248,7 @@ class Hand
 
   def straight_high_card_value(cards)
     unique = cards.uniq { |x| x.number }
-    unique.push(Card.new('e', 0)) if !unique.select {|x| x.number == 14 }.empty? # if selecting all cards with 14 is not empty, add 1 as well to check for straight
+    unique.push(Card.new('e', 0)) if !unique.select { |x| x.number == 14 }.empty? # if selecting all cards with 14 is not empty, add 1 as well to check for straight
     unique.sort!
     valid_so_far = 1
     (1..unique.length - 1).each do |i|
@@ -280,48 +266,48 @@ class Hand
   end
 
   def three_of_a_kind
-    if(@card_sets.values[0].length == 3)
+    if (@card_sets.values[0].length == 3)
       @hand_rank.first_compare = Values::THREE_OF_A_KIND
       @hand_rank.second_compare = @card_sets.keys[0]
       other_cards = Array.new(@cards)
-      other_cards.keep_if {|card| card.number != @card_sets.keys[0]}
-    @hand_rank.third_compare = other_cards[0].number
-    @hand_rank.fourth_compare = other_cards[1].number
-    @hand_type = "Three of a kind"
-    return @hand_rank
+      other_cards.keep_if { |card| card.number != @card_sets.keys[0] }
+      @hand_rank.third_compare = other_cards[0].number
+      @hand_rank.fourth_compare = other_cards[1].number
+      @hand_type = "Three of a kind"
+      return @hand_rank
     else
       return nil
     end
   end
 
   def two_pair
-    if(@card_sets.values[0].length == 2 && @card_sets.values[1].length == 2)
+    if (@card_sets.values[0].length == 2 && @card_sets.values[1].length == 2)
       @hand_rank.first_compare = Values::TWO_PAIR
       @hand_rank.second_compare = @card_sets.keys[0]
       @hand_rank.third_compare = @card_sets.keys[1]
       other_cards = Array.new(@cards)
-      other_cards.keep_if {|card| card.number != @card_sets.keys[0] && card.number != @card_sets.keys[1]}
-    @hand_rank.fourth_compare = other_cards[0].number
-    @hand_type = "Two pair"
-    return @hand_rank
+      other_cards.keep_if { |card| card.number != @card_sets.keys[0] && card.number != @card_sets.keys[1] }
+      @hand_rank.fourth_compare = other_cards[0].number
+      @hand_type = "Two pair"
+      return @hand_rank
     else
       return nil
     end
   end
-  
+
   def count
     @cards.count
   end
 
   def pair
-    if(@card_sets.values[0].length == 2)
+    if (@card_sets.values[0].length == 2)
       @hand_rank.first_compare = Values::ONE_PAIR
-    @hand_rank.second_compare = @card_sets.keys[0]
-    @hand_rank.third_compare = @card_sets.keys[1]
-    @hand_rank.fourth_compare = @card_sets.keys[2]
-    @hand_rank.fifth_compare = @card_sets.keys[3]
-    @hand_type = "Pair"
-    return @hand_rank
+      @hand_rank.second_compare = @card_sets.keys[0]
+      @hand_rank.third_compare = @card_sets.keys[1]
+      @hand_rank.fourth_compare = @card_sets.keys[2]
+      @hand_rank.fifth_compare = @card_sets.keys[3]
+      @hand_type = "Pair"
+      return @hand_rank
     end
   end
 
